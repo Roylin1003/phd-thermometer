@@ -1,0 +1,10 @@
+## 快取規則（Cloudflare Pages／Netlify 通用的 _headers 格式）。
+## 這是一個「改完就直接是線上版」的靜態站，沒有 staging——所以測試者手上的版本
+## 必須跟推上去的一致。max-age=0 + must-revalidate ＝ 瀏覽器每次載入都必須回伺服器問
+## 「這個變了嗎」：變了就拿新的，沒變就回 304。
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
