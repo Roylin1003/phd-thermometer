@@ -53,8 +53,22 @@
     font-family: "Noto Sans TC", sans-serif; font-size: 13.5px; font-weight: 500;
     border: none; background: transparent; color: var(--ink-soft);
     padding: 8px 18px; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
   .group-switch button.active { background: var(--mercury); color: var(--paper-raised); font-weight: 600; }
+  @media (max-width: 640px) {
+    .group-switch button { padding: 12px 18px; }
+  }
+
+  .mini-progress {
+    display: none; position: sticky; top: 0; z-index: 5; align-items: center; gap: 10px;
+    background: var(--paper); padding: 10px 4px; margin: 0 -4px; border-bottom: 1px solid var(--line);
+    font-size: 12.5px; color: var(--ink-soft);
+  }
+  .mini-progress .mini-pct { font-family: "Noto Serif TC", serif; font-weight: 900; color: var(--mercury); font-size: 15px; }
+  .mini-track { flex: 1; height: 6px; border-radius: 999px; background: var(--paper-raised); border: 1px solid var(--line); overflow: hidden; }
+  .mini-fill { height: 100%; width: 0%; background: var(--mercury); transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+  @media (max-width: 640px) { .mini-progress { display: flex; } }
 
   .controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   .credits-field { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-soft); }
@@ -114,18 +128,26 @@
   .item {
     display: grid; grid-template-columns: 24px 1fr; gap: 12px;
     padding: 10px 4px; border-bottom: 1px dashed var(--line); align-items: start;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
   .item:last-child { border-bottom: none; }
+  .item.is-locked { cursor: not-allowed; }
+  @media (max-width: 640px) { .item { padding: 14px 4px; } }
 
   .checkbox {
     width: 21px; height: 21px; border: 2px solid var(--brass); border-radius: 5px; margin-top: 2px;
     cursor: pointer; background: var(--paper-raised); position: relative; flex-shrink: 0;
     transition: background 0.2s, border-color 0.2s;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
+  @media (max-width: 640px) { .checkbox { width: 24px; height: 24px; } }
   .checkbox.checked { background: var(--sage); border-color: var(--sage); }
   .checkbox.checked::after {
     content: ""; position: absolute; left: 5.5px; top: 1.5px; width: 6px; height: 11px;
     border: solid var(--paper); border-width: 0 2px 2px 0; transform: rotate(40deg);
+  }
+  @media (max-width: 640px) {
+    .checkbox.checked::after { left: 6.5px; top: 2px; width: 7px; height: 13px; }
   }
   .checkbox.locked {
     cursor: not-allowed; border-color: var(--locked); opacity: 0.55;
@@ -137,6 +159,11 @@
   .item-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; line-height: 1.55; }
   .clause { color: var(--brass); font-weight: 600; }
   .lock-note { font-size: 11.5px; color: var(--mercury); margin-top: 3px; }
+  @media (max-width: 640px) {
+    .item-body label { font-size: 16px; }
+    .item-meta { font-size: 13px; }
+    .phase-title { font-size: 17px; }
+  }
 
   footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--ink-soft); line-height: 1.8; }
 
@@ -161,6 +188,12 @@
     </div>
     <div class="years-note" id="yearsNote"></div>
   </header>
+
+  <div class="mini-progress" id="miniProgress">
+    <span class="mini-pct" id="miniPct">0°</span>
+    <span id="miniFrac">0 / 0 項完成</span>
+    <div class="mini-track"><div class="mini-fill" id="miniFill"></div></div>
+  </div>
 
   <div class="board">
     <div class="therm-col">
@@ -304,10 +337,8 @@
     host.querySelectorAll(".item").forEach(function(item) {
       var id = item.dataset.id;
       var box = item.querySelector(".checkbox");
-      var label = item.querySelector("label");
-      box.addEventListener("click", function() { toggle(id); });
+      item.addEventListener("click", function() { toggle(id); });
       box.addEventListener("keydown", function(e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(id); } });
-      label.addEventListener("click", function() { toggle(id); });
     });
   }
 
@@ -354,6 +385,10 @@
     document.getElementById("bulbFill").classList.toggle("active", completed > 0);
     document.getElementById("milestone").classList.toggle("show", !!state.checked.qualifying);
     document.getElementById("yearsNote").textContent = GROUPS[g].name + " · " + GROUPS[g].years;
+
+    document.getElementById("miniPct").textContent = pct + "°";
+    document.getElementById("miniFrac").textContent = completed + " / " + ord.length + " 項完成";
+    document.getElementById("miniFill").style.width = pct + "%";
 
     document.querySelectorAll(".credits-num").forEach(function(el) { el.textContent = state.creditsRequired; });
     var input = document.getElementById("creditsInput");
