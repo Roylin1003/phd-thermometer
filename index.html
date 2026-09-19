@@ -371,7 +371,7 @@
       var deps = GROUPS[g].items[id].deps;
       if (!unlocked) {
         note.hidden = false;
-        note.textContent = "🔒 需先完成：" + deps.filter(function(d) { return !state.checked[d]; })
+        note.innerHTML = "🔒 需先完成：" + deps.filter(function(d) { return !state.checked[d]; })
           .map(function(d) { return GROUPS[g].items[d].label; }).join("、");
       } else {
         note.hidden = true;
